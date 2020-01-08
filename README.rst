@@ -1,33 +1,3 @@
-.. You should enable this project on travis-ci.org and coveralls.io to make
-   these badges work. The necessary Travis and Coverage config files have been
-   generated for you.
-
-.. image:: https://travis-ci.org/boykoc/ckanext-msal.svg?branch=master
-    :target: https://travis-ci.org/boykoc/ckanext-msal
-
-.. image:: https://coveralls.io/repos/boykoc/ckanext-msal/badge.svg
-  :target: https://coveralls.io/r/boykoc/ckanext-msal
-
-.. image:: https://pypip.in/download/ckanext-msal/badge.svg
-    :target: https://pypi.python.org/pypi//ckanext-msal/
-    :alt: Downloads
-
-.. image:: https://pypip.in/version/ckanext-msal/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-msal/
-    :alt: Latest Version
-
-.. image:: https://pypip.in/py_versions/ckanext-msal/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-msal/
-    :alt: Supported Python versions
-
-.. image:: https://pypip.in/status/ckanext-msal/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-msal/
-    :alt: Development Status
-
-.. image:: https://pypip.in/license/ckanext-msal/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-msal/
-    :alt: License
-
 =============
 ckanext-msal
 =============
@@ -41,17 +11,12 @@ ckanext-msal
 Requirements
 ------------
 
-For example, you might want to mention here which versions of CKAN this
-extension works with.
+MSAL
 
 
 ------------
 Installation
 ------------
-
-.. Add any additional install steps to the list below.
-   For example installing any non-Python dependencies or adding any required
-   config settings.
 
 To install ckanext-msal:
 
@@ -61,7 +26,10 @@ To install ckanext-msal:
 
 2. Install the ckanext-msal Python package into your virtual environment::
 
-     pip install ckanext-msal
+     git clone https://github.com/boykoc/ckanext-msal.git
+     cd ckanext-msal/
+     python setup.py develop
+     pip install -r requirements.txt
 
 3. Add ``msal`` to the ``ckan.plugins`` setting in your CKAN
    config file (by default the config file is located at

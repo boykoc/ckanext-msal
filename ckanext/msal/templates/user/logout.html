@@ -1,0 +1,16 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Logged Out') }}{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      <h1 class="page-heading">
+        {% block page_heading %}{{ _('Logged Out') }}{% endblock %}
+      </h1>
+      <p>{% trans %}You are now logged out.{% endtrans %}</p>
+      <p>Sign out of your Microsoft / Work account.</p>
+      <a href="https://login.microsoftonline.com/organizations/oauth2/v2.0/logout?post_logout_redirect_uri={{ h.url_for('user.logout', qualified=True) }}?came_from=/user/logged_out_redirect" class="btn btn-primary">Sign out</a>
+    </div>
+  </section>
+{% endblock %}

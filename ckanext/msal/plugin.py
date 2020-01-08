@@ -4,7 +4,8 @@ import ckan.plugins.toolkit as toolkit
 import logging
 import ckan.model as model
 from ckan.common import config, request, g
-from flask import Blueprint
+from flask import Blueprint, render_template, render_template_string
+import ckan.lib.helpers as h
 
 # MSAL
 import msal
@@ -66,10 +67,12 @@ def msal_login():
     '''
     authorization_url = application.get_authorization_request_url(
             msal_config.SCOPE,
-            redirect_uri=msal_config.REDIRECT_URI
+            redirect_uri=msal_config.REDIRECT_URI,
+            #prompt="login"
         )
 
     resp = toolkit.h.redirect_to(authorization_url)
+    log.error(authorization_url)
 
     return resp
 
@@ -113,9 +116,31 @@ def get_a_token():
 
     return resp
 
+def _get_repoze_handler(handler_name):
+    u'''Returns the URL that repoze.who will respond to and perform a
+    login or logout.'''
+    return getattr(request.environ[u'repoze.who.plugins'][u'friendlyform'],
+                   handler_name)
+
+def override_logged_out():
+    '''Override the logged_out() function to call Microsoft account logout.
+    The IAuthenticator logout() did not seem to properly follow redirect 
+    (I think this is because it is an interactive page it goes to or because 
+    this is flask and there ins't a global response object like in pylons) and
+    continued on with the standard logout() logic.
+    Also, doing it at logged_out() vs logged_out_page() to prevent "came_from" param going to a
+    different page and stopping the logout below.
+    '''
+    h.flash_success('You are now logged out.')
+    return toolkit.h.redirect_to('https://login.microsoftonline.com/organizations/oauth2/v2.0/logout?post_logout_redirect_uri=https://test.data.ontario.ca/user/login')
+
+
+
 class MsalPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IBlueprint)
+    plugins.implements(plugins.IAuthenticator)
+
 
     # IConfigurer
 
@@ -125,13 +150,40 @@ class MsalPlugin(plugins.SingletonPlugin):
         toolkit.add_resource('fanstatic', 'msal')
 
 
+    # IAuthenticator
+
+    def login(self):
+        pass
+
+    def identify(self):
+        pass
+
+    def abort(self, status_code, detail, headers, comment):
+        pass
+
+    def logout(self):
+        log.error('logout')
+        url = toolkit.h.url_for(u'user.logged_out_page')
+        log.error(url)
+        log.error(_get_repoze_handler(u'logout_handler_path'))
+        redirect = _get_repoze_handler(u'logout_handler_path') + u'?came_from=' + url
+        log.error(redirect)
+        log.error(msal_config.AUTHORITY + "/oauth2/v2.0/logout" +
+            "?post_logout_redirect_uri=https://test.data.ontario.ca" + redirect)
+        #toolkit.h.redirect_to(msal_config.AUTHORITY + "/oauth2/v2.0/logout" + "?post_logout_redirect_uri=https://test.data.ontario.ca/user/_logout")
+        return h.redirect_to('/')
+        #toolkit.h.redirect_to('/dataset')
+        #log.error(resp.__dict__)
+        #return resp
+
     # IBlueprint
 
     def get_blueprint(self):
         blueprint = Blueprint(self.name, self.__module__)
         rules = [
             ('/msal/login', 'msal_login', msal_login),
-            ('/getAToken', 'get_a_token', get_a_token)
+            ('/getAToken', 'get_a_token', get_a_token),
+            ('/user/logged_out', 'logged_out', override_logged_out)
         ]
 
         for rule in rules:
