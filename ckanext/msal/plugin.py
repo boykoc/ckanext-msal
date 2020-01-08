@@ -132,7 +132,7 @@ def override_logged_out():
     different page and stopping the logout below.
     '''
     h.flash_success('You are now logged out.')
-    return toolkit.h.redirect_to('https://login.microsoftonline.com/organizations/oauth2/v2.0/logout?post_logout_redirect_uri=https://test.data.ontario.ca/user/login')
+    return toolkit.h.redirect_to('https://login.microsoftonline.com/organizations/oauth2/v2.0/logout?post_logout_redirect_uri={}/user/login'.format(config.get('ckan.site_url')))
 
 
 
